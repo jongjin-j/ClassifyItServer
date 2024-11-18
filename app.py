@@ -15,9 +15,9 @@ from config import Config
 load_dotenv()
 openai_client = OpenAI()
 
-application = Flask(__name__)
-application.config.from_object(Config)
-db = SQLAlchemy(application)
+app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
 
 class WebsiteData(db.Model):
     __tablename__ = 'website_data'
@@ -26,12 +26,12 @@ class WebsiteData(db.Model):
     question = db.Column(db.String, nullable=False)
     options = options = db.Column(JSONB, nullable=True)
 
-@application.route('/get-website-data', methods=['GET'])
+@app.route('/get-website-data', methods=['GET'])
 def get_website_data():
     questions = WebsiteData.query.all()
     return jsonify([{'website': q.website, 'count': q.count, 'question': q.question, 'options': q.options} for q in questions])
 
-@application.route('/add-website-data', methods=['POST'])
+@app.route('/add-website-data', methods=['POST'])
 def add_question_and_options():
     data = request.get_json()
     website = data.get('website')
@@ -48,11 +48,11 @@ def add_question_and_options():
     
     return "Question added successfully", 201
 
-@application.route("/")
+@app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
-@application.route("/scrape", methods=['POST'])
+@app.route("/scrape", methods=['POST'])
 def scrape():
     data = request.get_json()
     website_url = data.get('website')
@@ -107,7 +107,7 @@ def scrape():
             "options": new_entry.options
         })
 
-@application.route("/option-response", methods=['POST'])
+@app.route("/option-response", methods=['POST'])
 def option_response():
     data = request.get_json()
     website = data.get('website')
